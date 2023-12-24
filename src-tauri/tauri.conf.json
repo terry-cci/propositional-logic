@@ -59,7 +59,9 @@
 				"height": 600,
 				"resizable": true,
 				"title": "Propositional Function Evaluator",
-				"width": 800
+				"width": 900,
+				"minHeight": 600,
+				"minWidth": 700
 			}
 		]
 	}

@@ -103,6 +103,7 @@
 	main {
 		flex-grow: 1;
 		padding: 1rem 2.5rem;
+		overflow-y: auto;
 	}
 
 	:global(main h2) {

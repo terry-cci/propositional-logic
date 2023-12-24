@@ -60,9 +60,25 @@
 		return previewText;
 	}
 
+	let truthTable: [string, boolean][][] | null = null;
+	let errorMsg: string | null = null;
+	let errorDialog: HTMLDialogElement;
+
 	async function generateTable() {
-		const postfix = await invoke<string[]>('parse_function_text', { text: functionText });
-		const tableRows = await invoke('evaluate_truth_table', { postfixExpression: postfix.join('') });
+		try {
+			truthTable = null;
+			const postfix = await invoke<string[]>('parse_function_text', { text: functionText });
+			console.debug(postfix);
+			const tableRows = await invoke<[string, boolean][][]>('evaluate_truth_table', {
+				postfixExpression: postfix.join('')
+			});
+			truthTable = tableRows;
+			console.debug(tableRows);
+		} catch (error) {
+			truthTable = null;
+			if (typeof error === 'string') errorMsg = error;
+			errorDialog.showModal();
+		}
 	}
 </script>
 
@@ -121,7 +137,46 @@
 	<button type="submit" disabled={!functionText} on:click={generateTable}
 		>Generate Truth Table</button
 	>
+
+	{#if truthTable}
+		<div>
+			<h3>Truth Table</h3>
+
+			<div id="truth-table-container">
+				<table>
+					<thead>
+						<tr>
+							{#each truthTable[0] as cell}
+								<th>
+									{toPreview(cell[0])}
+								</th>
+							{/each}
+						</tr>
+					</thead>
+					<tbody>
+						{#each truthTable as row}
+							<tr>
+								{#each row as cell}
+									<td class:active={cell[1]}>{cell[1] ? 'T' : 'F'}</td>
+								{/each}
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{/if}
 </form>
+
+<dialog bind:this={errorDialog}>
+	<h1>An Error has Occured</h1>
+
+	<p>{errorMsg}</p>
+
+	<form>
+		<button type="submit" formmethod="dialog">Close</button>
+	</form>
+</dialog>
 
 <style>
 	textarea {
@@ -184,5 +239,48 @@
 	}
 	button[type='submit']:disabled {
 		background-color: var(--colour-3);
+	}
+
+	#truth-table-container {
+		overflow-x: auto;
+		margin: 0 -2.5rem;
+		padding: 0 2.5rem;
+		padding-bottom: 1rem;
+	}
+
+	table {
+		width: max-content;
+		border-collapse: collapse;
+	}
+
+	table td,
+	table th {
+		border: 1px solid var(--colour-4);
+		padding: 0.25em 1em;
+	}
+
+	table th {
+		background-color: var(--colour-3);
+		color: var(--colour-5);
+		font-family: 'Noto Sans Math', sans-serif;
+	}
+
+	table td.active {
+		background-color: #91d6f1;
+		font-weight: bold;
+	}
+
+	dialog h1 {
+		font-size: 1.3rem;
+	}
+
+	dialog {
+		border-radius: 0.5rem;
+		box-shadow: 0 0 5px var(--colour-3);
+		padding: 2rem 2.5rem;
+	}
+
+	dialog::backdrop {
+		background-color: rgba(4, 57, 89, 0.8);
 	}
 </style>

@@ -155,4 +155,44 @@
 		background-color: var(--colour-2);
 		cursor: not-allowed;
 	}
+
+	:global(table) {
+		width: max-content;
+		border-collapse: collapse;
+	}
+
+	:global(table td),
+	:global(table th) {
+		border: 1px solid var(--colour-4);
+		padding: 0.25em 1em;
+	}
+
+	:global(table thead th) {
+		background-color: var(--colour-3);
+		color: var(--colour-5);
+		font-family: 'Noto Sans Math', sans-serif;
+	}
+
+	:global(table td.active) {
+		background-color: #91d6f1;
+		font-weight: bold;
+	}
+
+	:global(.horizontal-overflow-container) {
+		overflow-x: auto;
+		margin: 0 -2.5rem;
+		padding: 0 2.5rem;
+		padding-bottom: 1rem;
+	}
+
+	:global(.preview p) {
+		margin: 0;
+		text-align: center;
+		font-family: 'Noto Sans Math', sans-serif;
+		font-size: 1.5rem;
+	}
+
+	:global(.preview small) {
+		font-size: small;
+	}
 </style>

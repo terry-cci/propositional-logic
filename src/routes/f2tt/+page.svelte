@@ -1,38 +1,6 @@
 <script lang="ts">
+	import { OPERATORS, toPreview, type Operator } from '$lib/toPreview';
 	import { invoke } from '@tauri-apps/api/tauri';
-
-	type Operator = {
-		displayText: string;
-		inputText: string;
-		name: string;
-	};
-	const OPERATORS: Operator[] = [
-		{
-			displayText: '¬',
-			inputText: '!',
-			name: 'Not'
-		},
-		{
-			displayText: '∧',
-			inputText: '&',
-			name: 'And'
-		},
-		{
-			displayText: '∨',
-			inputText: '|',
-			name: 'Or'
-		},
-		{
-			displayText: '→',
-			inputText: '^',
-			name: 'If...then'
-		},
-		{
-			displayText: '↔',
-			inputText: '~',
-			name: 'If and only if'
-		}
-	];
 
 	function insertOperator(operator: Operator) {
 		const startPosition = functionTextarea.selectionStart;
@@ -51,14 +19,6 @@
 
 	let functionTextarea: HTMLTextAreaElement;
 	let functionText = '';
-
-	function toPreview(rawText: string) {
-		let previewText = rawText;
-		OPERATORS.forEach((operator) => {
-			previewText = previewText.replaceAll(operator.inputText, operator.displayText);
-		});
-		return previewText;
-	}
 
 	let truthTable: [string, boolean][][] | null = null;
 	let errorMsg: string | null = null;
@@ -125,30 +85,33 @@
 		</div>
 	</div>
 
-	<div id="preview">
+	<div class="preview">
 		<h3>Function Preview</h3>
-		<p>
-			{#if functionText}
-				{toPreview(functionText)}
-			{:else}
-				<small>(Waiting for input...)</small>
-			{/if}
-		</p>
+
+		<div class="horizontal-overflow-container">
+			<p>
+				{#if functionText}
+					{toPreview(functionText)}
+				{:else}
+					<small>(Waiting for input...)</small>
+				{/if}
+			</p>
+		</div>
 	</div>
-	<button type="submit" disabled={!functionText} on:click={generateTable}
-		>Generate Truth Table</button
-	>
+	<button type="submit" disabled={!functionText} on:click={generateTable}>
+		Generate Truth Table
+	</button>
 
 	{#if truthTable}
 		<div>
 			<h3>Truth Table</h3>
 
-			<div id="truth-table-container">
+			<div class="horizontal-overflow-container">
 				<table>
 					<thead>
 						<tr>
 							{#each truthTable[0] as cell}
-								<th>
+								<th scope="col">
 									{toPreview(cell[0])}
 								</th>
 							{/each}
@@ -211,17 +174,6 @@
 		font-size: small;
 	}
 
-	#preview p {
-		margin: 0;
-		text-align: center;
-		font-family: 'Noto Sans Math', sans-serif;
-		font-size: 1.5rem;
-	}
-
-	#preview small {
-		font-size: small;
-	}
-
 	button[type='submit'] {
 		font-weight: bold;
 		font-size: 1rem;
@@ -240,35 +192,6 @@
 	}
 	button[type='submit']:disabled {
 		background-color: var(--colour-3);
-	}
-
-	#truth-table-container {
-		overflow-x: auto;
-		margin: 0 -2.5rem;
-		padding: 0 2.5rem;
-		padding-bottom: 1rem;
-	}
-
-	table {
-		width: max-content;
-		border-collapse: collapse;
-	}
-
-	table td,
-	table th {
-		border: 1px solid var(--colour-4);
-		padding: 0.25em 1em;
-	}
-
-	table th {
-		background-color: var(--colour-3);
-		color: var(--colour-5);
-		font-family: 'Noto Sans Math', sans-serif;
-	}
-
-	table td.active {
-		background-color: #91d6f1;
-		font-weight: bold;
 	}
 
 	dialog h1 {

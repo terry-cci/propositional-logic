@@ -5,7 +5,8 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             parse_function_text,
-            evaluate_truth_table
+            evaluate_truth_table,
+            generate_function
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -84,6 +85,8 @@ struct ExpressionTreeNode {
 }
 
 const OPERATORS: [char; 5] = ['!', '&', '|', '^', '~'];
+
+use std::collections::HashMap;
 
 use indexmap::IndexMap;
 
@@ -246,4 +249,55 @@ fn display_node(node: &ExpressionTreeNode) {
     for n in &node.children {
         display_node(&n);
     }
+}
+
+#[tauri::command]
+fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> String {
+    let variable_count: u32 = variables.len().try_into().unwrap();
+    let row_count = 2u32.pow(variable_count);
+
+    let use_true_rows = u32::try_from(row_values.len()).unwrap() < (row_count / 2);
+
+    fn get_row_truth_value(row_index: u32, variable_count: u32, variable_index: u32) -> bool {
+        (row_index >> (variable_count - variable_index - 1)) % 2 != 0
+    }
+
+    let mut parts_of_function: Vec<String> = Vec::new();
+
+    for row_index in 0..row_count {
+        if (row_values.get(&row_index).is_none() || !row_values.get(&row_index).unwrap())
+            ^ use_true_rows
+        {
+            parts_of_function.push(
+                variables
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, variable)| {
+                        if get_row_truth_value(row_index, variable_count, idx.try_into().unwrap())
+                            ^ use_true_rows
+                        {
+                            format!("{}", variable)
+                        } else {
+                            format!("!{}", variable)
+                        }
+                    })
+                    .collect::<Vec<String>>()
+                    .join(if use_true_rows { "&" } else { "|" }),
+            );
+        }
+    }
+
+    if parts_of_function.is_empty() {
+        if use_true_rows {
+            return "F".into();
+        } else {
+            return "T".into();
+        }
+    }
+
+    parts_of_function
+        .iter()
+        .map(|f| format!("({})", f))
+        .collect::<Vec<String>>()
+        .join(if use_true_rows { "|" } else { "&" })
 }

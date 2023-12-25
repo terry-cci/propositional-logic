@@ -117,6 +117,7 @@
 				title="Clear"
 				on:click={() => {
 					functionText = '';
+					truthTable = null;
 				}}
 			>
 				Clear

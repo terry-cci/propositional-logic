@@ -138,15 +138,15 @@ fn evaluate_truth_table(postfix_expression: String) -> Result<Vec<Vec<(String, b
 
     println!();
     println!("All values evaluated");
-    for values in 0..2u32.pow(variables.len().try_into().unwrap()) {
-        let mut values_copy = values;
+
+    let variable_count = variables.len();
+    for values in 0..2u32.pow(variable_count.try_into().unwrap()) {
         let mut partial_values: IndexMap<String, bool> = IndexMap::new();
 
-        for var in variables.clone().keys() {
-            let variable_bool = values_copy % 2 != 0;
+        for (idx, var) in variables.clone().keys().enumerate() {
+            let variable_bool = (values >> (variable_count - idx - 1)) % 2 != 0;
             variables.insert(*var, variable_bool);
             partial_values.insert(var.to_string(), variable_bool);
-            values_copy >>= 1;
         }
 
         if nodes.first().is_none() {

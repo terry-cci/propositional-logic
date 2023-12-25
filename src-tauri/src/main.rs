@@ -119,7 +119,7 @@ fn evaluate_truth_table(postfix_expression: String) -> Result<Vec<Vec<(String, b
             continue;
         }
 
-        if !variables.contains_key(&character) {
+        if character != 'T' && character != 'F' && !variables.contains_key(&character) {
             variables.insert(character, false);
         }
 
@@ -219,6 +219,14 @@ fn evaluate_node(
             .or_insert(new_bool);
 
         return Ok((new_bool, new_expression));
+    }
+
+    if node.value == 'T' {
+        return Ok((true, "T".into()));
+    }
+
+    if node.value == 'F' {
+        return Ok((false, "F".into()));
     }
 
     Err("Invalid expression tree!".into())

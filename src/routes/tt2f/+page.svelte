@@ -58,103 +58,105 @@
 
 <p>Click on the cells of column of <span class="math">A</span> to change the truth value.</p>
 
-<button
-	type="button"
-	id="add-variable-btn"
-	title="Add a Variable to the Function"
-	disabled={variables.length >= 6}
-	on:click={addVariable}
->
-	Add Variable
-</button>
-<small>Up to 6 variables are accepted</small>
+<form on:submit|preventDefault={generateFunction}>
+	<div id="add-variable-div">
+		<button
+			type="button"
+			id="add-variable-btn"
+			title="Add a Variable to the Function"
+			disabled={variables.length >= 6}
+			on:click={addVariable}
+		>
+			Add Variable
+		</button>
+		<small>Up to 6 variables are accepted</small>
+	</div>
 
-<div class="horizontal-overflow-container">
-	<table>
-		<thead>
-			<tr>
-				{#each variables as v, variableIdx}
-					<th scope="col">
-						<input
-							type="text"
-							name="variableName[{variableIdx}]"
-							id="variable-name-{variableIdx}"
-							bind:value={v}
-							size="1"
-							on:focus={(e) => {
-								e.currentTarget.setSelectionRange(0, e.currentTarget.value.length);
-							}}
-						/>
-					</th>
-				{/each}
-				<th scope="col" id="input-col-header"> A({variables.map((n) => n || '?').join(', ')}) </th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each Array(Math.pow(2, variables.length)) as _, value}
+	<div class="horizontal-overflow-container">
+		<table>
+			<thead>
 				<tr>
-					{#each Array(variables.length) as _, variableIdx}
-						<td class:active={(value >> (variables.length - variableIdx - 1)) % 2}>
-							{(value >> (variables.length - variableIdx - 1)) % 2 ? 'T' : 'F'}
-						</td>
+					{#each variables as v, variableIdx}
+						<th scope="col">
+							<input
+								type="text"
+								name="variableName[{variableIdx}]"
+								id="variable-name-{variableIdx}"
+								bind:value={v}
+								size="1"
+								on:focus={(e) => {
+									e.currentTarget.setSelectionRange(0, e.currentTarget.value.length);
+								}}
+							/>
+						</th>
 					{/each}
-					<td
-						class="input-cell"
-						role="checkbox"
-						aria-checked={rowValues[value] ? 'true' : 'false'}
-						class:active={rowValues[value]}
-						on:click={() => {
-							rowValues[value] = !(rowValues[value] ?? false);
-						}}
-						title="Switch Truth Value"
-					>
-						= {rowValues[value] ? 'T' : 'F'}
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-		<tfoot>
-			<tr>
-				{#each variables as v, variableIdx}
-					<th scope="col">
-						<button
-							type="button"
-							title="Delete Variable: {v}"
-							on:click={() => {
-								deleteVariable(variableIdx);
-							}}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="1.5"
-								stroke="currentColor"
-								width="16"
-							>
-								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-							</svg>
-						</button>
+					<th scope="col" id="input-col-header">
+						A({variables.map((n) => n || '?').join(', ')})
 					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each Array(Math.pow(2, variables.length)) as _, value}
+					<tr>
+						{#each Array(variables.length) as _, variableIdx}
+							<td class:active={(value >> (variables.length - variableIdx - 1)) % 2}>
+								{(value >> (variables.length - variableIdx - 1)) % 2 ? 'T' : 'F'}
+							</td>
+						{/each}
+						<td
+							class="input-cell"
+							role="checkbox"
+							aria-checked={rowValues[value] ? 'true' : 'false'}
+							class:active={rowValues[value]}
+							on:click={() => {
+								rowValues[value] = !(rowValues[value] ?? false);
+							}}
+							title="Switch Truth Value"
+						>
+							= {rowValues[value] ? 'T' : 'F'}
+						</td>
+					</tr>
 				{/each}
-				{#if variables.length}
-					<th scope="col"></th>
-				{/if}
-			</tr>
-		</tfoot>
-	</table>
-</div>
+			</tbody>
+			<tfoot>
+				<tr>
+					{#each variables as v, variableIdx}
+						<th scope="col">
+							<button
+								type="button"
+								title="Delete Variable: {v}"
+								on:click={() => {
+									deleteVariable(variableIdx);
+								}}
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									width="16"
+								>
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</th>
+					{/each}
+					{#if variables.length}
+						<th scope="col"></th>
+					{/if}
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 
-<button
-	type="button"
-	on:click={generateFunction}
-	disabled={variables.some((n) => !n) || repeatedNamesExists}
->
-	Generate Function
-</button>
-{#if repeatedNamesExists}
-	<small>Repeated variables names</small>
-{/if}
+	<button type="submit" disabled={variables.some((n) => !n) || repeatedNamesExists}>
+		Generate Function
+	</button>
+	{#if repeatedNamesExists}
+		<small>Repeated variables names</small>
+	{/if}
+</form>
 
 {#if functionText}
 	<div class="preview">
@@ -164,6 +166,7 @@
 			<p>
 				{toPreview(functionText)}
 			</p>
+			<div class="input-text">{functionText}</div>
 		</div>
 	</div>
 {/if}
@@ -203,7 +206,20 @@
 		margin-bottom: 1rem;
 	}
 
-	button + small {
-		margin-left: 0.5rem;
+	.input-text {
+		font-family: 'Noto Sans Mono', monospace;
+		text-align: center;
+		font-size: smaller;
+		color: var(--colour-4);
+	}
+
+	#add-variable-div {
+		flex-direction: row;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	#add-variable-div button {
+		margin: 0;
 	}
 </style>

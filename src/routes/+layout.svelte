@@ -11,6 +11,9 @@
 				<li>
 					<a href="/tt2f"> Truth&nbsp;Table to Function </a>
 				</li>
+				<li>
+					<a href="/f2nf"> Normalise Function </a>
+				</li>
 			</ul>
 		</nav>
 		<footer><p>2023, Terry C.C.I.</p></footer>
@@ -123,6 +126,32 @@
 		gap: 0.25em;
 	}
 
+	:global(form > button[type='submit']) {
+		font-weight: bold;
+		font-size: 1rem;
+		margin-top: 1em;
+		width: max-content;
+		margin-left: auto;
+		margin-right: auto;
+		padding: 0.5em 3em;
+		background-color: var(--colour-3);
+	}
+	:global(form > button[type='submit']):hover {
+		background-color: var(--colour-2);
+	}
+	:global(form > button[type='submit']):active {
+		background-color: var(--colour-3);
+	}
+	:global(form > button[type='submit']):disabled {
+		background-color: var(--colour-3);
+	}
+
+	:global(form > button[type='submit'] + small) {
+		display: block;
+		text-align: center;
+		margin-top: -0.5rem;
+	}
+
 	:global(textarea) {
 		resize: vertical;
 		background-color: #e7f9ff;
@@ -194,5 +223,19 @@
 
 	:global(.preview small) {
 		font-size: small;
+	}
+
+	:global(dialog h1) {
+		font-size: 1.3rem;
+	}
+
+	:global(dialog) {
+		border-radius: 0.5rem;
+		box-shadow: 0 0 5px var(--colour-3);
+		padding: 2rem 2.5rem;
+	}
+
+	:global(dialog::backdrop) {
+		background-color: rgba(4, 57, 89, 0.8);
 	}
 </style>

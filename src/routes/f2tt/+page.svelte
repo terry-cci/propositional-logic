@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FunctionInput from '$lib/components/FunctionInput.svelte';
 	import { OPERATORS, toPreview, type Operator } from '$lib/toPreview';
 	import { invoke } from '@tauri-apps/api/tauri';
 
@@ -44,46 +45,13 @@
 
 <h2>Function to Truth Table</h2>
 
-<form>
-	<div>
-		<label for="function-textarea">Input Propositional Function:</label>
-		<textarea
-			name="function"
-			id="function-textarea"
-			rows="2"
-			placeholder="Input the function to be evaluated here..."
-			bind:this={functionTextarea}
-			bind:value={functionText}
-		/>
-		<div id="action-bar">
-			<ul>
-				{#each OPERATORS as operator}
-					<li>
-						<button
-							type="button"
-							title={operator.name}
-							on:click={() => {
-								insertOperator(operator);
-							}}
-						>
-							{operator.displayText}
-							<small> ({operator.inputText})</small>
-						</button>
-					</li>
-				{/each}
-			</ul>
-			<button
-				type="reset"
-				title="Clear"
-				on:click={() => {
-					functionText = '';
-					truthTable = null;
-				}}
-			>
-				Clear
-			</button>
-		</div>
-	</div>
+<form on:submit|preventDefault={generateTable}>
+	<FunctionInput
+		bind:value={functionText}
+		on:clear={() => {
+			truthTable = null;
+		}}
+	/>
 
 	<div class="preview">
 		<h3>Function Preview</h3>
@@ -98,9 +66,7 @@
 			</p>
 		</div>
 	</div>
-	<button type="submit" disabled={!functionText} on:click={generateTable}>
-		Generate Truth Table
-	</button>
+	<button type="submit" disabled={!functionText}> Generate Truth Table </button>
 
 	{#if truthTable}
 		<div>
@@ -141,70 +107,3 @@
 		<button type="submit" formmethod="dialog">Close</button>
 	</form>
 </dialog>
-
-<style>
-	textarea {
-		font-family: 'Noto Sans Mono', sans-serif;
-		font-size: large;
-	}
-
-	#action-bar {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	ul {
-		display: flex;
-		list-style: none;
-		padding-left: 0;
-		gap: 0.5rem;
-		margin: 0;
-	}
-
-	ul button {
-		font-family: 'Noto Sans Math', sans-serif;
-		font-size: 1.3rem;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		line-height: 0.8em;
-	}
-	ul button small {
-		color: var(--colour-4);
-		font-size: small;
-	}
-
-	button[type='submit'] {
-		font-weight: bold;
-		font-size: 1rem;
-		margin-top: 1em;
-		width: max-content;
-		margin-left: auto;
-		margin-right: auto;
-		padding: 0.5em 3em;
-		background-color: var(--colour-3);
-	}
-	button[type='submit']:hover {
-		background-color: var(--colour-2);
-	}
-	button[type='submit']:active {
-		background-color: var(--colour-3);
-	}
-	button[type='submit']:disabled {
-		background-color: var(--colour-3);
-	}
-
-	dialog h1 {
-		font-size: 1.3rem;
-	}
-
-	dialog {
-		border-radius: 0.5rem;
-		box-shadow: 0 0 5px var(--colour-3);
-		padding: 2rem 2.5rem;
-	}
-
-	dialog::backdrop {
-		background-color: rgba(4, 57, 89, 0.8);
-	}
-</style>

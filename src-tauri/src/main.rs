@@ -256,7 +256,15 @@ fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> 
     let variable_count: u32 = variables.len().try_into().unwrap();
     let row_count = 2u32.pow(variable_count);
 
-    let use_true_rows = u32::try_from(row_values.len()).unwrap() < (row_count / 2);
+    let use_true_rows = u32::try_from(
+        row_values
+            .iter()
+            .filter(|value| *value.1)
+            .collect::<Vec<(&u32, &bool)>>()
+            .len(),
+    )
+    .unwrap()
+        < (row_count / 2);
 
     fn get_row_truth_value(row_index: u32, variable_count: u32, variable_index: u32) -> bool {
         (row_index >> (variable_count - variable_index - 1)) % 2 != 0

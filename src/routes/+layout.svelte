@@ -225,6 +225,13 @@
 		font-size: small;
 	}
 
+	:global(.input-text) {
+		font-family: 'Noto Sans Mono', monospace;
+		text-align: center;
+		font-size: smaller;
+		color: var(--colour-4);
+	}
+
 	:global(dialog h1) {
 		font-size: 1.3rem;
 	}

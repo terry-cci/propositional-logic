@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { OPERATORS, type Operator } from '$lib/toPreview';
+	import { OPERATORS, type Operator, toPreview } from '$lib/toPreview';
 	import { createEventDispatcher } from 'svelte';
 
 	function insertOperator(operator: Operator) {
@@ -60,6 +60,20 @@
 		>
 			Clear
 		</button>
+	</div>
+</div>
+
+<div class="preview">
+	<h3>Function Preview</h3>
+
+	<div class="horizontal-overflow-container">
+		<p>
+			{#if value}
+				{toPreview(value)}
+			{:else}
+				<small>(Waiting for input...)</small>
+			{/if}
+		</p>
 	</div>
 </div>
 

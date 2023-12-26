@@ -19,6 +19,8 @@
 			variables
 		});
 
+		console.debug(output);
+
 		functionText = output;
 	}
 
@@ -204,13 +206,6 @@
 	}
 	#add-variable-btn {
 		margin-bottom: 1rem;
-	}
-
-	.input-text {
-		font-family: 'Noto Sans Mono', monospace;
-		text-align: center;
-		font-size: smaller;
-		color: var(--colour-4);
 	}
 
 	#add-variable-div {

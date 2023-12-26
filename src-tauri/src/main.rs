@@ -6,7 +6,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             parse_function_text,
             evaluate_truth_table,
-            generate_function
+            generate_function,
+            normalise_function
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -139,6 +140,15 @@ fn evaluate_truth_table(postfix_expression: String) -> Result<Vec<Vec<(String, b
 
     let mut truth_table: Vec<Vec<(String, bool)>> = Vec::new();
 
+    if postfix_expression.len() == 1 && variables.len() == 0 {
+        truth_table.push(vec![(
+            postfix_expression.clone(),
+            postfix_expression == "T",
+        )]);
+
+        return Ok(truth_table);
+    }
+
     println!();
     println!("All values evaluated");
 
@@ -251,12 +261,19 @@ fn display_node(node: &ExpressionTreeNode) {
     }
 }
 
+enum NormalisationForm {
+    DNF,
+    CNF,
+}
+
 #[tauri::command]
-fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> String {
+fn generate_function(
+    row_values: HashMap<u32, bool>,
+    variables: Vec<String>,
+) -> Result<String, String> {
     let variable_count: u32 = variables.len().try_into().unwrap();
     let row_count = 2u32.pow(variable_count);
-
-    let use_true_rows = u32::try_from(
+    let form = if u32::try_from(
         row_values
             .iter()
             .filter(|value| *value.1)
@@ -264,7 +281,52 @@ fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> 
             .len(),
     )
     .unwrap()
-        < (row_count / 2);
+        < (row_count / 2)
+    {
+        NormalisationForm::DNF
+    } else {
+        NormalisationForm::CNF
+    };
+
+    let normal_form = generate_normal_form(&row_values, &variables, &form)?;
+
+    if normal_form.len() == 0 {
+        match form {
+            NormalisationForm::DNF => {
+                return Ok("F".into());
+            }
+            NormalisationForm::CNF => {
+                return Ok("T".into());
+            }
+        }
+    }
+
+    Ok(normal_form)
+}
+
+fn generate_normal_form(
+    row_values: &HashMap<u32, bool>,
+    variables: &Vec<String>,
+    form: &NormalisationForm,
+) -> Result<String, String> {
+    let variable_count: u32 = variables.len().try_into().unwrap();
+    let row_count = 2u32.pow(variable_count);
+
+    if variable_count == 0 {
+        if row_values.get(&0).is_none() || !row_values.get(&0).unwrap() {
+            return Ok(match form {
+                NormalisationForm::DNF => "",
+                NormalisationForm::CNF => "F",
+            }
+            .into());
+        } else {
+            return Ok(match form {
+                NormalisationForm::DNF => "T",
+                NormalisationForm::CNF => "",
+            }
+            .into());
+        }
+    }
 
     fn get_row_truth_value(row_index: u32, variable_count: u32, variable_index: u32) -> bool {
         (row_index >> (variable_count - variable_index - 1)) % 2 != 0
@@ -274,7 +336,10 @@ fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> 
 
     for row_index in 0..row_count {
         if (row_values.get(&row_index).is_none() || !row_values.get(&row_index).unwrap())
-            ^ use_true_rows
+            ^ match form {
+                NormalisationForm::DNF => true,
+                NormalisationForm::CNF => false,
+            }
         {
             parts_of_function.push(
                 variables
@@ -282,7 +347,10 @@ fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> 
                     .enumerate()
                     .map(|(idx, variable)| {
                         if get_row_truth_value(row_index, variable_count, idx.try_into().unwrap())
-                            ^ use_true_rows
+                            ^ match form {
+                                NormalisationForm::DNF => false,
+                                NormalisationForm::CNF => true,
+                            }
                         {
                             format!("{}", variable)
                         } else {
@@ -290,22 +358,31 @@ fn generate_function(row_values: HashMap<u32, bool>, variables: Vec<String>) -> 
                         }
                     })
                     .collect::<Vec<String>>()
-                    .join(if use_true_rows { "&" } else { "|" }),
+                    .join(match form {
+                        NormalisationForm::DNF => "&",
+                        NormalisationForm::CNF => "|",
+                    }),
             );
         }
     }
 
-    if parts_of_function.is_empty() {
-        if use_true_rows {
-            return "F".into();
-        } else {
-            return "T".into();
-        }
-    }
-
-    parts_of_function
+    Ok(parts_of_function
         .iter()
         .map(|f| format!("({})", f))
         .collect::<Vec<String>>()
-        .join(if use_true_rows { "|" } else { "&" })
+        .join(match form {
+            NormalisationForm::DNF => "|",
+            NormalisationForm::CNF => "&",
+        }))
+}
+
+#[tauri::command]
+fn normalise_function(
+    row_values: HashMap<u32, bool>,
+    variables: Vec<String>,
+) -> Result<(String, String), String> {
+    Ok((
+        generate_normal_form(&row_values, &variables, &NormalisationForm::DNF)?,
+        generate_normal_form(&row_values, &variables, &NormalisationForm::CNF)?,
+    ))
 }

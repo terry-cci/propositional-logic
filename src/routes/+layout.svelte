@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { open } from '@tauri-apps/api/shell';
+</script>
+
 <div class="default-layout">
 	<div id="side-bar">
 		<h1>
@@ -16,7 +20,16 @@
 				</li>
 			</ul>
 		</nav>
-		<footer><p>2023, Terry C.C.I.</p></footer>
+		<footer>
+			<p>
+				2023, <a
+					href="https://github.com/terry-cci"
+					on:click|preventDefault={() => {
+						open('https://github.com/terry-cci');
+					}}>Terry C.C.I.</a
+				>
+			</p>
+		</footer>
 	</div>
 	<main>
 		<slot />
@@ -68,7 +81,8 @@
 		border-bottom: 1px solid var(--colour-1);
 	}
 
-	#side-bar h1 a {
+	#side-bar h1 a,
+	#side-bar footer a {
 		color: inherit;
 		text-decoration: none;
 	}

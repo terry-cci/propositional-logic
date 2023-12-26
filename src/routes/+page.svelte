@@ -66,7 +66,6 @@
 	footer {
 		text-align: center;
 		margin-top: 4rem;
-		font-size: 0.8em;
 		color: var(--colour-4);
 		padding-bottom: 4rem;
 	}

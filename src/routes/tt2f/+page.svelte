@@ -170,6 +170,16 @@
 			</p>
 			<div class="input-text">{functionText}</div>
 		</div>
+
+		<button
+			type="button"
+			class="send-btn"
+			on:click={() => {
+				location.href = '/f2tt?f=' + encodeURIComponent(functionText ?? '');
+			}}
+		>
+			Send to Truth Table
+		</button>
 	</div>
 {/if}
 

@@ -245,4 +245,9 @@
 	:global(dialog::backdrop) {
 		background-color: rgba(4, 57, 89, 0.8);
 	}
+
+	:global(.send-btn) {
+		display: block;
+		margin: 0.5rem auto;
+	}
 </style>

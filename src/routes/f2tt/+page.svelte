@@ -4,7 +4,7 @@
 	import { toPreview } from '$lib/toPreview';
 	import { invoke } from '@tauri-apps/api/tauri';
 
-	let functionText = '';
+	let functionText = new URLSearchParams(location.search).get('f') ?? '';
 
 	let truthTable: [string, boolean][][] | null = null;
 	let errorMsg: string | null = null;
@@ -37,6 +37,17 @@
 			truthTable = null;
 		}}
 	/>
+	<button
+		type="button"
+		disabled={!functionText}
+		class="send-btn"
+		style="margin-top: 0;"
+		on:click={() => {
+			location.href = '/f2nf?f=' + encodeURIComponent(functionText);
+		}}
+	>
+		Send to Normalisation
+	</button>
 	<button type="submit" disabled={!functionText}> Generate Truth Table </button>
 
 	{#if truthTable}

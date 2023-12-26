@@ -4,7 +4,7 @@
 	import { toPreview } from '$lib/toPreview';
 	import { invoke } from '@tauri-apps/api/tauri';
 
-	let functionText = '';
+	let functionText = new URLSearchParams(location.search).get('f') ?? '';
 	let errorDialog: ErrorDialog;
 	let errorMsg: string | null = null;
 
@@ -59,6 +59,15 @@
 			</p>
 			<div class="input-text">{normalForms[0] || '(Empty)'}</div>
 		</div>
+		<button
+			type="button"
+			class="send-btn"
+			on:click={() => {
+				location.href = '/f2tt?f=' + encodeURIComponent(normalForms?.[0] ?? '');
+			}}
+		>
+			Send to Truth Table
+		</button>
 
 		<h4>Conjunctive Normal Form</h4>
 		<div class="horizontal-overflow-container">
@@ -67,6 +76,15 @@
 			</p>
 			<div class="input-text">{normalForms[1] || '(Empty)'}</div>
 		</div>
+		<button
+			type="button"
+			class="send-btn"
+			on:click={() => {
+				location.href = '/f2tt?f=' + encodeURIComponent(normalForms?.[1] ?? '');
+			}}
+		>
+			Send to Truth Table
+		</button>
 	</div>
 {/if}
 
